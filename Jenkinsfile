@@ -1,17 +1,22 @@
 
+
 pipeline {
     agent any
+
+    environment {
+        PYTHON = 'C:\\Users\\narad\\AppData\\Local\\Programs\\Python\\Python313\\python.exe'
+    }
 
     stages {
         stage('Checkout') {
             steps {
-                echo 'Source code will be checked out from GitHub.'
+                echo 'Source code fetched from GitHub.'
             }
         }
 
         stage('Verify Project') {
             steps {
-                bat 'python --version'
+                bat '"%PYTHON%" --version'
                 bat 'git --version'
                 bat 'dir'
             }
@@ -19,13 +24,13 @@ pipeline {
 
         stage('Install Dependencies') {
             steps {
-                bat 'python -m pip install -r requirements.txt'
+                bat '"%PYTHON%" -m pip install -r requirements.txt'
             }
         }
 
         stage('Run Tests') {
             steps {
-                bat 'python -m pytest -v'
+                bat '"%PYTHON%" -m pytest -v'
             }
         }
     }
@@ -35,7 +40,7 @@ pipeline {
             echo 'Dynamic Class Track pipeline completed successfully!'
         }
         failure {
-            echo 'Pipeline failed. Check the Console Output for details.'
+            echo 'Pipeline failed. Check Console Output.'
         }
     }
 }
