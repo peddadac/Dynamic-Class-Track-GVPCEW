@@ -1,0 +1,66 @@
+{% extends "admin/base_admin.html" %}
+
+{% block title %}Create Manual Schedule — Dynamic Class Track{% endblock %}
+
+{% block admin_content %}
+<div class="container-fluid p-0">
+    <div class="mb-4">
+        <h2 class="h4 fw-bold text-dark mb-1">Create Manual Schedule Grid</h2>
+        <p class="text-muted small mb-0">Initialize an empty timetable template for a section and populate classes directly in the review table.</p>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-lg-6">
+            <div class="card border-0 shadow-sm rounded-3">
+                <div class="card-body p-4">
+                    <form method="POST">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Branch</label>
+                            <select name="branch_id" class="form-select" id="branchSelect" required>
+                                <option value="">-- Select Branch --</option>
+                                {% for b in branches %}
+                                    <option value="{{ b.id }}">{{ b.code }} — {{ b.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Academic Year</label>
+                            <select name="academic_year_id" class="form-select" required>
+                                {% for y in years %}
+                                    <option value="{{ y.id }}" {% if y.is_current %}selected{% endif %}>{{ y.year_label }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Semester</label>
+                            <select name="semester_id" class="form-select" required>
+                                {% for sem in semesters %}
+                                    <option value="{{ sem.id }}" {% if sem.number == 5 %}selected{% endif %}>Semester {{ sem.number }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="form-label fw-semibold">Section</label>
+                            <select name="section_id" class="form-select" id="sectionSelect" required>
+                                <option value="">-- Select Section --</option>
+                                {% for s in sections %}
+                                    <option value="{{ s.id }}">{{ s.branch.code }} - Sec {{ s.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary w-100 py-2 fw-semibold">
+                            <i class="fa-solid fa-table-cells me-1"></i> Generate Draft Grid & Open Editor
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,165 @@
+{% extends "base.html" %}
+
+{% block title %}Dynamic Class Track — Smart College Timetable System{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero-section text-center">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-10">
+                <span class="badge bg-primary-subtle text-primary border border-primary-subtle px-3 py-2 rounded-pill fw-semibold mb-3">
+                    <i class="fa-solid fa-graduation-cap me-1"></i> {{ COLLEGE_NAME }}
+                </span>
+                <h1 class="display-5 fw-bold text-dark mb-3">
+                    Dynamic Class Track
+                </h1>
+                <p class="lead text-muted mb-4 mx-auto" style="max-width: 780px;">
+                    Find your next class, assigned classroom, timing, and real-time room changes instantly. 
+                    Streamlined timetable management with automatic OCR extraction, conflict detection, and targeted mobile notifications.
+                </p>
+                <div class="d-flex justify-content-center gap-3 flex-wrap">
+                    <a href="#portals" class="btn btn-primary btn-lg px-4 shadow-sm fw-semibold">
+                        <i class="fa-solid fa-door-open me-2"></i> Select Your Portal
+                    </a>
+                    <a href="#features" class="btn btn-outline-secondary btn-lg px-4 fw-semibold">
+                        <i class="fa-solid fa-circle-info me-2"></i> How It Works
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Three Prominent Portal Cards -->
+<section id="portals" class="py-5">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h2 class="fw-bold text-dark mb-2">Access College Portals</h2>
+            <p class="text-muted">Choose your role to sign in to your dedicated dashboard.</p>
+        </div>
+
+        <div class="row g-4 justify-content-center">
+            <!-- 1. Admin Portal Card -->
+            <div class="col-md-6 col-lg-4">
+                <div class="portal-card portal-admin p-4 d-flex flex-column text-center">
+                    <div class="portal-icon-wrapper mx-auto">
+                        <i class="fa-solid fa-shield-halved"></i>
+                    </div>
+                    <h3 class="h4 fw-bold text-dark mb-2">Admin Portal</h3>
+                    <p class="text-muted mb-4 flex-grow-1">
+                        Upload timetable images with Tesseract OCR, review draft entries, manage branches, classrooms, faculty, students, and broadcast instant classroom changes.
+                    </p>
+                    <a href="{{ url_for('auth.portal_login', role='admin') }}" class="btn btn-danger w-100 py-2 fw-semibold shadow-sm">
+                        <i class="fa-solid fa-lock me-2"></i> Admin Login
+                    </a>
+                </div>
+            </div>
+
+            <!-- 2. Faculty Portal Card -->
+            <div class="col-md-6 col-lg-4">
+                <div class="portal-card portal-faculty p-4 d-flex flex-column text-center">
+                    <div class="portal-icon-wrapper mx-auto">
+                        <i class="fa-solid fa-chalkboard-user"></i>
+                    </div>
+                    <h3 class="h4 fw-bold text-dark mb-2">Faculty Portal</h3>
+                    <p class="text-muted mb-4 flex-grow-1">
+                        View your complete personalized teaching timetable across all departments and sections. Highlight current & upcoming classes, and receive immediate room shift alerts.
+                    </p>
+                    <a href="{{ url_for('auth.portal_login', role='faculty') }}" class="btn btn-primary w-100 py-2 fw-semibold shadow-sm" style="background-color: var(--primary-blue); border-color: var(--primary-blue);">
+                        <i class="fa-solid fa-user-tie me-2"></i> Faculty Login
+                    </a>
+                </div>
+            </div>
+
+            <!-- 3. Student Portal Card -->
+            <div class="col-md-6 col-lg-4">
+                <div class="portal-card portal-student p-4 d-flex flex-column text-center">
+                    <div class="portal-icon-wrapper mx-auto">
+                        <i class="fa-solid fa-user-graduate"></i>
+                    </div>
+                    <h3 class="h4 fw-bold text-dark mb-2">Student Portal</h3>
+                    <p class="text-muted mb-4 flex-grow-1">
+                        Always know your next class room number, period timings, and faculty details. Instant notifications when your section's class moves to a new room or lab.
+                    </p>
+                    <a href="{{ url_for('auth.portal_login', role='student') }}" class="btn btn-teal w-100 py-2 fw-semibold shadow-sm text-white" style="background-color: var(--accent-teal); border-color: var(--accent-teal);">
+                        <i class="fa-solid fa-graduation-cap me-2"></i> Student Login
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- College Timetable Statistics -->
+<section class="py-4 bg-white border-top border-bottom">
+    <div class="container">
+        <div class="row g-4 text-center">
+            <div class="col-6 col-md-3">
+                <h3 class="display-6 fw-bold text-primary mb-1">{{ stats.branches_count }}</h3>
+                <span class="text-muted fw-medium">Active Branches</span>
+            </div>
+            <div class="col-6 col-md-3">
+                <h3 class="display-6 fw-bold text-success mb-1">{{ stats.sections_count }}</h3>
+                <span class="text-muted fw-medium">Academic Sections</span>
+            </div>
+            <div class="col-6 col-md-3">
+                <h3 class="display-6 fw-bold text-warning mb-1">{{ stats.classrooms_count }}</h3>
+                <span class="text-muted fw-medium">Smart Classrooms & Labs</span>
+            </div>
+            <div class="col-6 col-md-3">
+                <h3 class="display-6 fw-bold text-info mb-1">{{ stats.timetables_count }}</h3>
+                <span class="text-muted fw-medium">Published Timetables</span>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- System Features & Value Proposition -->
+<section id="features" class="py-5">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h2 class="fw-bold text-dark mb-2">Why Dynamic Class Track?</h2>
+            <p class="text-muted">Eliminate classroom confusion and paper timetable chaos.</p>
+        </div>
+
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="p-4 bg-white rounded-3 border h-100 shadow-sm">
+                    <div class="text-primary mb-3 fs-2">
+                        <i class="fa-solid fa-file-image"></i>
+                    </div>
+                    <h4 class="h5 fw-bold text-dark">Automated Timetable OCR</h4>
+                    <p class="text-muted mb-0">
+                        Upload scanned paper timetables or images. Advanced OpenCV preprocessing and Tesseract OCR extract subjects, faculty abbreviations, and room numbers into an editable review table.
+                    </p>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="p-4 bg-white rounded-3 border h-100 shadow-sm">
+                    <div class="text-success mb-3 fs-2">
+                        <i class="fa-solid fa-arrows-split-up-and-left"></i>
+                    </div>
+                    <h4 class="h5 fw-bold text-dark">Zero-Conflict Allocation</h4>
+                    <p class="text-muted mb-0">
+                        Intelligent scheduling engine verifies room double-booking, simultaneous faculty assignments, and overlapping section hours before publication.
+                    </p>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="p-4 bg-white rounded-3 border h-100 shadow-sm">
+                    <div class="text-danger mb-3 fs-2">
+                        <i class="fa-solid fa-bell"></i>
+                    </div>
+                    <h4 class="h5 fw-bold text-dark">Targeted Classroom Shift Alerts</h4>
+                    <p class="text-muted mb-0">
+                        When a room changes, our notification system informs only the assigned professor and the students of that section via in-app bell, real-time push, and background alerts.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

@@ -1,0 +1,101 @@
+{% extends "admin/base_admin.html" %}
+
+{% block title %}Broadcast Notifications — Dynamic Class Track{% endblock %}
+
+{% block admin_content %}
+<div class="container-fluid p-0">
+    <div class="mb-4">
+        <h2 class="h4 fw-bold text-dark mb-1">Broadcast & System Notifications</h2>
+        <p class="text-muted small mb-0">Dispatch general announcements and view recent delivery logs.</p>
+    </div>
+
+    <div class="row g-4">
+        <!-- Broadcast Form -->
+        <div class="col-lg-5">
+            <div class="card border-0 shadow-sm rounded-3">
+                <div class="card-header bg-white py-3 border-bottom">
+                    <h6 class="fw-bold text-dark mb-0"><i class="fa-solid fa-bullhorn text-primary me-2"></i> Send College Announcement</h6>
+                </div>
+                <div class="card-body p-4">
+                    <form method="POST" action="{{ url_for('admin.notifications') }}">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Target Audience</label>
+                            <select name="target_role" class="form-select" required>
+                                <option value="all">All Users (Faculty & Students)</option>
+                                <option value="faculty">Faculty Members Only</option>
+                                <option value="student">Students Only</option>
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Announcement Title</label>
+                            <input type="text" name="title" class="form-control" placeholder="e.g. Mid-term Exam Timetable Published" required>
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="form-label fw-semibold">Message Content</label>
+                            <textarea name="message" class="form-control" rows="4" placeholder="Enter message text..." required></textarea>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary w-100 py-2 fw-semibold shadow-sm">
+                            <i class="fa-solid fa-paper-plane me-1"></i> Send Broadcast Alert
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Logs Table -->
+        <div class="col-lg-7">
+            <div class="card border-0 shadow-sm rounded-3 h-100">
+                <div class="card-header bg-white py-3 border-bottom d-flex justify-content-between align-items-center">
+                    <h6 class="fw-bold text-dark mb-0"><i class="fa-solid fa-clock-rotate-left text-muted me-2"></i> Recent Sent Notifications</h6>
+                    <span class="badge bg-light text-muted border">{{ notifications|length }} alerts</span>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive" style="max-height: 500px; overflow-y: auto;">
+                        <table class="table table-hover align-middle mb-0 small">
+                            <thead class="table-light sticky-top">
+                                <tr>
+                                    <th>Recipient</th>
+                                    <th>Type</th>
+                                    <th>Notification</th>
+                                    <th>Status</th>
+                                    <th>Sent</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for n in notifications %}
+                                    <tr>
+                                        <td>
+                                            <strong class="d-block text-dark">{{ n.user.full_name if n.user else 'User' }}</strong>
+                                            <small class="text-muted text-capitalize">({{ n.user.role if n.user else '' }})</small>
+                                        </td>
+                                        <td>
+                                            <span class="badge bg-secondary text-capitalize">{{ n.notification_type|replace('_', ' ') }}</span>
+                                        </td>
+                                        <td>
+                                            <strong class="d-block">{{ n.title }}</strong>
+                                            <span class="text-muted text-truncate d-inline-block" style="max-width: 200px;">{{ n.message }}</span>
+                                        </td>
+                                        <td>
+                                            {% if n.is_read %}
+                                                <span class="badge bg-light text-muted border">Read</span>
+                                            {% else %}
+                                                <span class="badge bg-info-subtle text-info">Delivered</span>
+                                            {% endif %}
+                                        </td>
+                                        <td class="text-muted">{{ n.created_at.strftime('%b %d, %H:%M') }}</td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

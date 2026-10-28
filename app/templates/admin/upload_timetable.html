@@ -1,0 +1,139 @@
+{% extends "admin/base_admin.html" %}
+
+{% block title %}Upload Timetable Image — Dynamic Class Track{% endblock %}
+
+{% block admin_content %}
+<div class="container-fluid p-0">
+    <div class="mb-4">
+        <h2 class="h4 fw-bold text-dark mb-1">Upload & Extract Timetable Image (OCR)</h2>
+        <p class="text-muted small mb-0">
+            Upload scanned timetable sheets or digital timetable images. Computer vision & OCR will parse the schedule into an editable review grid.
+        </p>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-lg-7">
+            <div class="card border-0 shadow-sm rounded-3">
+                <div class="card-body p-4">
+                    <form method="POST" action="{{ url_for('admin.upload_timetable') }}" enctype="multipart/form-data" id="uploadForm">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">Target Branch</label>
+                                <select name="branch_id" id="branchSelect" class="form-select" required>
+                                    <option value="">-- Choose Branch --</option>
+                                    {% for b in branches %}
+                                        <option value="{{ b.id }}">{{ b.code }} — {{ b.name }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">Academic Year</label>
+                                <select name="academic_year_id" class="form-select" required>
+                                    {% for y in years %}
+                                        <option value="{{ y.id }}" {% if y.is_current %}selected{% endif %}>{{ y.year_label }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">Semester</label>
+                                <select name="semester_id" class="form-select" required>
+                                    {% for sem in semesters %}
+                                        <option value="{{ sem.id }}" {% if sem.number == 5 %}selected{% endif %}>Semester {{ sem.number }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">Section</label>
+                                <select name="section_id" id="sectionSelect" class="form-select" required>
+                                    <option value="">-- Choose Section --</option>
+                                    {% for s in sections %}
+                                        <option value="{{ s.id }}">{{ s.branch.code }} - Section {{ s.name }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Timetable Type</label>
+                            <select name="timetable_type" class="form-select" required>
+                                <option value="regular" selected>Regular Weekly Recurring Timetable</option>
+                                <option value="override">Date-Specific Temporary Override Schedule</option>
+                            </select>
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="form-label fw-semibold">Timetable Image or Scanned Document</label>
+                            <div class="p-4 border-2 border-dashed rounded-3 text-center bg-light" style="border-style: dashed; border-color: #cbd5e1;">
+                                <i class="fa-solid fa-cloud-arrow-up fa-3x text-primary mb-2"></i>
+                                <p class="mb-2 text-dark fw-semibold">Drag & drop or select timetable file</p>
+                                <p class="small text-muted mb-3">Supports PNG, JPG, JPEG, and scanned PDFs (Max 16MB)</p>
+                                <input type="file" name="timetable_file" id="timetableFile" class="form-control w-75 mx-auto" accept=".png,.jpg,.jpeg,.pdf" required>
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary px-4 py-2 fw-semibold w-100 shadow-sm" id="submitBtn">
+                            <i class="fa-solid fa-microchip me-2"></i> Upload & Process with OCR
+                        </button>
+
+                        <div id="loadingIndicator" class="text-center mt-3 d-none">
+                            <div class="spinner-border text-primary spinner-border-sm me-2" role="status"></div>
+                            <span class="text-muted small">Preprocessing image, detecting grid cells & running OCR engine...</span>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- OCR Instructions & Best Practices -->
+        <div class="col-lg-5">
+            <div class="card border-0 shadow-sm rounded-3 bg-white h-100">
+                <div class="card-header bg-white py-3 border-bottom">
+                    <h6 class="fw-bold text-dark mb-0"><i class="fa-solid fa-lightbulb text-warning me-2"></i> OCR Best Practices</h6>
+                </div>
+                <div class="card-body">
+                    <ul class="list-unstyled text-muted small mb-4">
+                        <li class="mb-3 d-flex align-items-start gap-2">
+                            <i class="fa-solid fa-check-circle text-success mt-1"></i>
+                            <div><strong>Clear Alignment:</strong> Scanned tables with sharp horizontal and vertical lines yield the highest cell detection accuracy.</div>
+                        </li>
+                        <li class="mb-3 d-flex align-items-start gap-2">
+                            <i class="fa-solid fa-check-circle text-success mt-1"></i>
+                            <div><strong>Readable Codes:</strong> Use standard subject codes (e.g., <code>CS501</code>) and faculty abbreviations/IDs for automatic database mapping.</div>
+                        </li>
+                        <li class="mb-3 d-flex align-items-start gap-2">
+                            <i class="fa-solid fa-check-circle text-success mt-1"></i>
+                            <div><strong>Editable Review:</strong> Nothing is published automatically! You will be able to review, adjust, and correct every cell in an interactive table before publication.</div>
+                        </li>
+                        <li class="d-flex align-items-start gap-2">
+                            <i class="fa-solid fa-shield-halved text-primary mt-1"></i>
+                            <div><strong>Safety Check:</strong> The system automatically verifies room availability and professor schedules to prevent double bookings.</div>
+                        </li>
+                    </ul>
+
+                    <div class="p-3 bg-light rounded-2 border">
+                        <small class="fw-bold text-dark d-block mb-1">Manual Schedule Alternative:</small>
+                        <p class="small text-muted mb-2">Need to create or modify a schedule directly without an image?</p>
+                        <a href="{{ url_for('admin.create_manual_timetable') }}" class="btn btn-outline-secondary btn-sm">
+                            <i class="fa-solid fa-pen-to-square me-1"></i> Open Manual Schedule Builder
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.getElementById('uploadForm').addEventListener('submit', function() {
+    document.getElementById('submitBtn').disabled = true;
+    document.getElementById('loadingIndicator').classList.remove('d-none');
+});
+</script>
+{% endblock %}

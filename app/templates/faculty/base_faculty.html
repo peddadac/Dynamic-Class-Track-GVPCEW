@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container py-4">
+    <!-- Faculty Navigation Sub-Bar -->
+    <div class="card border-0 shadow-sm rounded-4 mb-4 bg-white p-3">
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+            <div class="d-flex align-items-center gap-3">
+                <div class="p-3 bg-primary-subtle text-primary rounded-circle">
+                    <i class="fa-solid fa-chalkboard-user fa-2x"></i>
+                </div>
+                <div>
+                    <div class="d-flex align-items-center gap-2">
+                        <h4 class="fw-bold text-dark mb-0">{{ current_user.full_name }}</h4>
+                        <span class="badge bg-primary text-uppercase" style="font-size: 0.7rem;">Faculty</span>
+                    </div>
+                    <small class="text-muted">
+                        ID: <strong class="text-dark">{{ current_user.faculty_profile.faculty_id if current_user.faculty_profile else '' }}</strong> | 
+                        Dept: {{ current_user.faculty_profile.department_branch.name if current_user.faculty_profile and current_user.faculty_profile.department_branch else 'Engineering' }}
+                    </small>
+                </div>
+            </div>
+
+            <ul class="nav nav-pills gap-2">
+                <li class="nav-item">
+                    <a class="nav-link {% if request.endpoint == 'faculty.dashboard' %}active{% endif %}" href="{{ url_for('faculty.dashboard') }}">
+                        <i class="fa-solid fa-calendar-day me-1"></i> Today's Schedule
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {% if request.endpoint == 'faculty.schedule' %}active{% endif %}" href="{{ url_for('faculty.schedule') }}">
+                        <i class="fa-solid fa-calendar-week me-1"></i> Weekly Cross-Branch Timetable
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {% if request.endpoint == 'faculty.notifications' %}active{% endif %}" href="{{ url_for('faculty.notifications') }}">
+                        <i class="fa-solid fa-bell me-1"></i> Alerts
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    {% block faculty_content %}{% endblock %}
+</div>
+{% endblock %}

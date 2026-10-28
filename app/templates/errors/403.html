@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+
+{% block title %}Access Denied (403) — Dynamic Class Track{% endblock %}
+
+{% block content %}
+<div class="container py-5 text-center">
+    <div class="py-5">
+        <h1 class="display-1 fw-bold text-danger">403</h1>
+        <h2 class="h3 fw-semibold text-dark mb-3">Access Denied</h2>
+        <p class="text-muted mb-4 mx-auto" style="max-width: 500px;">
+            You do not have authorization to access this portal or restricted timetable resource.
+        </p>
+        <a href="{{ url_for('main.index') }}" class="btn btn-outline-danger px-4 py-2">
+            <i class="fa-solid fa-house me-2"></i> Return to Homepage
+        </a>
+    </div>
+</div>
+{% endblock %}

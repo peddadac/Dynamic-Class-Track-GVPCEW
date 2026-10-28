@@ -1,0 +1,290 @@
+{% extends "admin/base_admin.html" %}
+
+{% block title %}Admin Dashboard — Dynamic Class Track{% endblock %}
+
+{% block admin_content %}
+<div class="container-fluid p-0">
+
+    <!-- Header & Quick Actions -->
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+        <div>
+            <h2 class="h3 fw-bold text-dark mb-1">Administrative Overview</h2>
+            <p class="text-muted small mb-0">{{ COLLEGE_NAME }} — Master Control Panel</p>
+        </div>
+        <div class="d-flex gap-2">
+            <a href="{{ url_for('admin.upload_timetable') }}" class="btn btn-primary btn-sm px-3 shadow-sm">
+                <i class="fa-solid fa-cloud-arrow-up me-1"></i> Upload Timetable (OCR)
+            </a>
+            <a href="{{ url_for('admin.room_changes') }}" class="btn btn-warning btn-sm px-3 shadow-sm text-dark fw-semibold">
+                <i class="fa-solid fa-door-open me-1"></i> Change Room
+            </a>
+            <a href="{{ url_for('admin.conflicts_report') }}" class="btn btn-outline-danger btn-sm px-3">
+                <i class="fa-solid fa-triangle-exclamation me-1"></i> Conflict Analyzer
+            </a>
+        </div>
+    </div>
+
+    <!-- Summary Metrics Cards Grid -->
+    <div class="row g-3 mb-4">
+        <!-- 1. Branches -->
+        <div class="col-sm-6 col-xl-3">
+            <div class="stat-card shadow-sm d-flex align-items-center justify-content-between">
+                <div>
+                    <span class="text-muted small fw-semibold text-uppercase">Branches</span>
+                    <h3 class="fw-bold text-dark mb-0 mt-1">{{ stats.total_branches }}</h3>
+                    <small class="text-primary"><a href="{{ url_for('admin.branches') }}" class="text-decoration-none">Manage Branches &rarr;</a></small>
+                </div>
+                <div class="stat-icon bg-primary-subtle text-primary">
+                    <i class="fa-solid fa-diagram-project"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- 2. Sections -->
+        <div class="col-sm-6 col-xl-3">
+            <div class="stat-card shadow-sm d-flex align-items-center justify-content-between">
+                <div>
+                    <span class="text-muted small fw-semibold text-uppercase">Sections</span>
+                    <h3 class="fw-bold text-dark mb-0 mt-1">{{ stats.total_sections }}</h3>
+                    <small class="text-success"><a href="{{ url_for('admin.sections') }}" class="text-decoration-none">Manage Sections &rarr;</a></small>
+                </div>
+                <div class="stat-icon bg-success-subtle text-success">
+                    <i class="fa-solid fa-layer-group"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- 3. Faculty Members -->
+        <div class="col-sm-6 col-xl-3">
+            <div class="stat-card shadow-sm d-flex align-items-center justify-content-between">
+                <div>
+                    <span class="text-muted small fw-semibold text-uppercase">Faculty Members</span>
+                    <h3 class="fw-bold text-dark mb-0 mt-1">{{ stats.total_faculty }}</h3>
+                    <small class="text-info"><a href="{{ url_for('admin.faculty') }}" class="text-decoration-none">View Faculty &rarr;</a></small>
+                </div>
+                <div class="stat-icon bg-info-subtle text-info">
+                    <i class="fa-solid fa-chalkboard-user"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- 4. Students -->
+        <div class="col-sm-6 col-xl-3">
+            <div class="stat-card shadow-sm d-flex align-items-center justify-content-between">
+                <div>
+                    <span class="text-muted small fw-semibold text-uppercase">Enrolled Students</span>
+                    <h3 class="fw-bold text-dark mb-0 mt-1">{{ stats.total_students }}</h3>
+                    <small class="text-secondary"><a href="{{ url_for('admin.students') }}" class="text-decoration-none">CSV Bulk Import &rarr;</a></small>
+                </div>
+                <div class="stat-icon bg-secondary-subtle text-secondary">
+                    <i class="fa-solid fa-user-graduate"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- 5. Classrooms -->
+        <div class="col-sm-6 col-xl-3">
+            <div class="stat-card shadow-sm d-flex align-items-center justify-content-between">
+                <div>
+                    <span class="text-muted small fw-semibold text-uppercase">Classrooms & Labs</span>
+                    <h3 class="fw-bold text-dark mb-0 mt-1">{{ stats.total_classrooms }}</h3>
+                    <small class="text-dark"><a href="{{ url_for('admin.classrooms') }}" class="text-decoration-none">Room Details &rarr;</a></small>
+                </div>
+                <div class="stat-icon bg-light text-dark border">
+                    <i class="fa-solid fa-chalkboard"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- 6. Published Timetables -->
+        <div class="col-sm-6 col-xl-3">
+            <div class="stat-card shadow-sm d-flex align-items-center justify-content-between">
+                <div>
+                    <span class="text-muted small fw-semibold text-uppercase">Published Schedules</span>
+                    <h3 class="fw-bold text-success mb-0 mt-1">{{ stats.published_timetables }}</h3>
+                    <small class="text-success"><a href="{{ url_for('admin.timetables') }}" class="text-decoration-none text-success">Live Versions &rarr;</a></small>
+                </div>
+                <div class="stat-icon bg-success-subtle text-success">
+                    <i class="fa-solid fa-calendar-check"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- 7. Today's Classes -->
+        <div class="col-sm-6 col-xl-3">
+            <div class="stat-card shadow-sm d-flex align-items-center justify-content-between">
+                <div>
+                    <span class="text-muted small fw-semibold text-uppercase">Classes Today</span>
+                    <h3 class="fw-bold text-primary mb-0 mt-1">{{ stats.today_classes }}</h3>
+                    <small class="text-muted">Active periods</small>
+                </div>
+                <div class="stat-icon bg-primary-subtle text-primary">
+                    <i class="fa-solid fa-clock"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- 8. Pending Approvals -->
+        <div class="col-sm-6 col-xl-3">
+            <div class="stat-card shadow-sm d-flex align-items-center justify-content-between">
+                <div>
+                    <span class="text-muted small fw-semibold text-uppercase">Draft Timetables</span>
+                    <h3 class="fw-bold text-warning mb-0 mt-1">{{ stats.pending_drafts }}</h3>
+                    <small class="text-warning"><a href="{{ url_for('admin.timetables') }}" class="text-decoration-none text-warning">Review Drafts &rarr;</a></small>
+                </div>
+                <div class="stat-icon bg-warning-subtle text-warning">
+                    <i class="fa-solid fa-hourglass-half"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Activity Split: Recent Room Shifts & OCR Uploads -->
+    <div class="row g-4">
+        <!-- Recent Classroom Changes -->
+        <div class="col-lg-6">
+            <div class="card border-0 shadow-sm rounded-3 h-100">
+                <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center border-bottom">
+                    <h6 class="fw-bold text-dark mb-0">
+                        <i class="fa-solid fa-door-open text-warning me-2"></i> Recent Classroom Adjustments
+                    </h6>
+                    <a href="{{ url_for('admin.room_changes') }}" class="btn btn-outline-secondary btn-sm">View All</a>
+                </div>
+                <div class="card-body p-0">
+                    {% if recent_changes %}
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle mb-0 small">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Subject & Section</th>
+                                        <th>Previous</th>
+                                        <th>New Room</th>
+                                        <th>Timestamp</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for rc in recent_changes %}
+                                        <tr>
+                                            <td>
+                                                <strong>{{ rc.timetable_entry.subject.name if rc.timetable_entry and rc.timetable_entry.subject else 'Class' }}</strong>
+                                                <br>
+                                                <span class="text-muted">
+                                                    {{ rc.timetable_entry.version.branch.code if rc.timetable_entry and rc.timetable_entry.version else '' }}-Sec {{ rc.timetable_entry.version.section.name if rc.timetable_entry and rc.timetable_entry.version else '' }}
+                                                </span>
+                                            </td>
+                                            <td><span class="badge bg-secondary">{{ rc.old_classroom.room_number if rc.old_classroom else 'TBA' }}</span></td>
+                                            <td><span class="badge bg-success">{{ rc.new_classroom.room_number if rc.new_classroom else 'TBA' }}</span></td>
+                                            <td class="text-muted">{{ rc.change_timestamp.strftime('%b %d, %I:%M %p') }}</td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="text-center py-4 text-muted small">No recent classroom changes recorded.</div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Timetable Uploads -->
+        <div class="col-lg-6">
+            <div class="card border-0 shadow-sm rounded-3 h-100">
+                <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center border-bottom">
+                    <h6 class="fw-bold text-dark mb-0">
+                        <i class="fa-solid fa-file-invoice text-primary me-2"></i> Timetable Processing & OCR Status
+                    </h6>
+                    <a href="{{ url_for('admin.upload_timetable') }}" class="btn btn-primary btn-sm">Upload New</a>
+                </div>
+                <div class="card-body p-0">
+                    {% if recent_uploads %}
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle mb-0 small">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Section</th>
+                                        <th>File</th>
+                                        <th>Status</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for up in recent_uploads %}
+                                        <tr>
+                                            <td>
+                                                <strong>{{ up.branch.code }}</strong> Sem {{ up.semester.number }} - Sec {{ up.section.name }}
+                                            </td>
+                                            <td class="text-truncate" style="max-width: 140px;" title="{{ up.original_filename }}">
+                                                {{ up.original_filename }}
+                                            </td>
+                                            <td>
+                                                {% if up.status == 'parsed' %}
+                                                    <span class="badge bg-info">Extracted</span>
+                                                {% elif up.status == 'processing' %}
+                                                    <span class="badge bg-warning">Processing</span>
+                                                {% elif up.status == 'failed' %}
+                                                    <span class="badge bg-danger">Failed</span>
+                                                {% else %}
+                                                    <span class="badge bg-secondary">{{ up.status }}</span>
+                                                {% endif %}
+                                            </td>
+                                            <td>
+                                                {% if up.timetable_version_id %}
+                                                    <a href="{{ url_for('admin.review_timetable', version_id=up.timetable_version_id) }}" class="btn btn-outline-primary btn-sm py-0">
+                                                        Review
+                                                    </a>
+                                                {% else %}
+                                                    <span class="text-muted">—</span>
+                                                {% endif %}
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="text-center py-4 text-muted small">No timetable files uploaded yet.</div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Audit Logs snippet -->
+    <div class="card border-0 shadow-sm rounded-3 mt-4">
+        <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center border-bottom">
+            <h6 class="fw-bold text-dark mb-0">
+                <i class="fa-solid fa-clipboard-list text-muted me-2"></i> Recent Administrative Audit Logs
+            </h6>
+            <a href="{{ url_for('admin.audit_logs') }}" class="btn btn-outline-secondary btn-sm">Full Audit Trail</a>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-sm table-hover align-middle mb-0 small">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Action</th>
+                            <th>Entity</th>
+                            <th>Details</th>
+                            <th>User</th>
+                            <th>Timestamp</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for a in recent_audits %}
+                            <tr>
+                                <td><span class="badge bg-light text-dark border">{{ a.action }}</span></td>
+                                <td>{{ a.entity_type }} #{{ a.entity_id or '—' }}</td>
+                                <td class="text-truncate" style="max-width: 320px;">{{ a.details }}</td>
+                                <td>{{ a.user.username if a.user else 'System' }}</td>
+                                <td class="text-muted">{{ a.timestamp.strftime('%b %d, %H:%M:%S') }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+</div>
+{% endblock %}

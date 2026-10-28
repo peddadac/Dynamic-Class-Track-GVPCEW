@@ -1,0 +1,124 @@
+{% extends "admin/base_admin.html" %}
+
+{% block title %}Conflict Analyzer — Dynamic Class Track{% endblock %}
+
+{% block admin_content %}
+<div class="container-fluid p-0">
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+        <div>
+            <h2 class="h4 fw-bold text-dark mb-1">Schedule Conflict Analyzer</h2>
+            <p class="text-muted small mb-0">Live audit of room overlaps and professor double-booking across all published timetables.</p>
+        </div>
+        <span class="badge {% if total_conflicts == 0 %}bg-success{% else %}bg-danger{% endif %} fs-6 px-3 py-2">
+            <i class="fa-solid {% if total_conflicts == 0 %}fa-circle-check{% else %}fa-triangle-exclamation{% endif %} me-1"></i>
+            {{ total_conflicts }} Conflicts Detected
+        </span>
+    </div>
+
+    <!-- Status summary banner -->
+    {% if total_conflicts == 0 %}
+        <div class="alert alert-success border-success-subtle shadow-sm rounded-3 p-4 text-center mb-4">
+            <i class="fa-solid fa-circle-check fa-3x text-success mb-2"></i>
+            <h5 class="fw-bold text-success">Clean Timetable Schedule!</h5>
+            <p class="text-muted mb-0">No overlapping room assignments or simultaneous faculty bookings detected across the college.</p>
+        </div>
+    {% else %}
+        <div class="alert alert-danger border-danger-subtle shadow-sm rounded-3 mb-4">
+            <h6 class="fw-bold mb-1"><i class="fa-solid fa-triangle-exclamation me-2"></i> Attention Required</h6>
+            <p class="small mb-0">The conflicting classes listed below share the same physical room or professor during overlapping time windows.</p>
+        </div>
+    {% endif %}
+
+    <div class="row g-4">
+        <!-- Room Double Booking Clashes -->
+        <div class="col-lg-6">
+            <div class="card border-0 shadow-sm rounded-3 h-100">
+                <div class="card-header bg-white py-3 border-bottom d-flex justify-content-between align-items-center">
+                    <h6 class="fw-bold text-dark mb-0">
+                        <i class="fa-solid fa-door-closed text-danger me-2"></i> Classroom Overlaps ({{ room_conflicts|length }})
+                    </h6>
+                </div>
+                <div class="card-body p-0">
+                    {% if room_conflicts %}
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle mb-0 small">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Room</th>
+                                        <th>Day & Time</th>
+                                        <th>Conflicting Class 1</th>
+                                        <th>Conflicting Class 2</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for e1, e2 in room_conflicts %}
+                                        <tr>
+                                            <td><span class="badge bg-danger">{{ e1.classroom.room_number }}</span></td>
+                                            <td>{{ e1.day_of_week }}<br><span class="text-muted">{{ e1.time_range_display }}</span></td>
+                                            <td>
+                                                <strong>{{ e1.subject.code }}</strong> ({{ e1.version.branch.code }}-{{ e1.version.section.name }})
+                                            </td>
+                                            <td>
+                                                <strong>{{ e2.subject.code }}</strong> ({{ e2.version.branch.code }}-{{ e2.version.section.name }})
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="text-center py-4 text-muted small">
+                            <i class="fa-solid fa-check text-success me-1"></i> No classroom double bookings found.
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Faculty Double Booking Clashes -->
+        <div class="col-lg-6">
+            <div class="card border-0 shadow-sm rounded-3 h-100">
+                <div class="card-header bg-white py-3 border-bottom d-flex justify-content-between align-items-center">
+                    <h6 class="fw-bold text-dark mb-0">
+                        <i class="fa-solid fa-user-xmark text-danger me-2"></i> Faculty Overlaps ({{ faculty_conflicts|length }})
+                    </h6>
+                </div>
+                <div class="card-body p-0">
+                    {% if faculty_conflicts %}
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle mb-0 small">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Faculty</th>
+                                        <th>Day & Time</th>
+                                        <th>Assigned Class 1</th>
+                                        <th>Assigned Class 2</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for e1, e2 in faculty_conflicts %}
+                                        <tr>
+                                            <td><span class="badge bg-dark">{{ e1.faculty.faculty_id }}</span></td>
+                                            <td>{{ e1.day_of_week }}<br><span class="text-muted">{{ e1.time_range_display }}</span></td>
+                                            <td>
+                                                <strong>{{ e1.subject.name }}</strong> ({{ e1.version.branch.code }}-{{ e1.version.section.name }})
+                                            </td>
+                                            <td>
+                                                <strong>{{ e2.subject.name }}</strong> ({{ e2.version.branch.code }}-{{ e2.version.section.name }})
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="text-center py-4 text-muted small">
+                            <i class="fa-solid fa-check text-success me-1"></i> No faculty double bookings found.
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,89 @@
+{% extends "student/base_student.html" %}
+
+{% block title %}Section Timetable — Dynamic Class Track{% endblock %}
+
+{% block student_content %}
+<div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+    <div>
+        <h3 class="h4 fw-bold text-dark mb-1">Weekly Section Timetable</h3>
+        <p class="text-muted small mb-0">
+            <strong>{{ student.branch.code }}</strong> | Semester {{ student.semester.number }} — Section {{ student.section.name }} 
+            {% if version %}(Version {{ version.version_number }}){% endif %}
+        </p>
+    </div>
+    <div>
+        <button onclick="window.print()" class="btn btn-outline-secondary btn-sm px-3">
+            <i class="fa-solid fa-print me-1"></i> Print Timetable
+        </button>
+    </div>
+</div>
+
+{% if version %}
+    <div class="card border-0 shadow-sm rounded-4 overflow-hidden bg-white mb-4">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-bordered text-center align-middle mb-0 timetable-table">
+                    <thead>
+                        <tr>
+                            <th style="width: 120px; background-color: var(--primary-blue); color: #fff;">Day</th>
+                            {% for p in periods %}
+                                <th style="background-color: var(--primary-blue); color: #fff;">
+                                    <div>Period {{ p.period }}</div>
+                                    <small class="fw-normal text-white-50" style="font-size: 0.72rem;">{{ p.start }} - {{ p.end }}</small>
+                                </th>
+                            {% endfor %}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for day in days %}
+                            <tr class="{% if day == today_day %}table-light{% endif %}">
+                                <th class="bg-light text-dark fw-bold">
+                                    {{ day }}
+                                    {% if day == today_day %}
+                                        <span class="badge bg-warning text-dark d-block mt-1" style="font-size: 0.65rem;">Today</span>
+                                    {% endif %}
+                                </th>
+                                {% for p in periods %}
+                                    {% set entry = weekly_grid[day].get(p.period) %}
+                                    <td class="p-2" style="min-width: 130px; height: 95px; vertical-align: top;">
+                                        {% if entry and entry.subject %}
+                                            <div class="cell-card text-start h-100 d-flex flex-column justify-content-between">
+                                                <div>
+                                                    <span class="badge bg-primary-subtle text-primary border border-primary-subtle fw-semibold mb-1" style="font-size: 0.7rem;">
+                                                        {{ entry.subject.code }}
+                                                    </span>
+                                                    <div class="fw-bold text-dark small text-truncate" title="{{ entry.subject.name }}">
+                                                        {{ entry.subject.name }}
+                                                    </div>
+                                                </div>
+                                                <div class="mt-2 pt-1 border-top d-flex justify-content-between align-items-center" style="font-size: 0.72rem;">
+                                                    <span class="text-muted text-truncate" style="max-width: 80px;" title="{{ entry.faculty.full_name if entry.faculty else 'TBA' }}">
+                                                        {{ entry.faculty.faculty_id if entry.faculty else 'TBA' }}
+                                                    </span>
+                                                    <span class="badge bg-dark">
+                                                        <i class="fa-solid fa-door-open me-1"></i>{{ entry.classroom.room_number if entry.classroom else 'TBA' }}
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        {% elif entry %}
+                                            <div class="text-muted small py-3">Free</div>
+                                        {% else %}
+                                            <div class="text-muted small py-3">—</div>
+                                        {% endif %}
+                                    </td>
+                                {% endfor %}
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+{% else %}
+    <div class="card border-0 shadow-sm rounded-4 p-5 text-center bg-white">
+        <i class="fa-solid fa-calendar-xmark fa-3x text-muted mb-3"></i>
+        <h5 class="fw-bold text-dark">No Published Timetable Yet</h5>
+        <p class="text-muted mb-0">The timetable for your section is currently being reviewed by the administration. You will be notified as soon as it is published.</p>
+    </div>
+{% endif %}
+{% endblock %}

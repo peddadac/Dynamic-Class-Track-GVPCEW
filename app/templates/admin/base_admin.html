@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="admin-wrapper">
+    <!-- Admin Sidebar -->
+    <aside class="admin-sidebar d-none d-lg-block">
+        <div class="px-3 mb-3">
+            <span class="badge bg-danger-subtle text-danger border border-danger-subtle px-2 py-1 rounded text-uppercase" style="font-size: 0.7rem; font-weight: 700;">
+                <i class="fa-solid fa-lock me-1"></i> Admin Portal
+            </span>
+            <h6 class="fw-bold text-dark mt-2 mb-0">Management Console</h6>
+        </div>
+
+        <nav class="nav flex-column">
+            <a class="nav-link {% if request.endpoint == 'admin.dashboard' %}active{% endif %}" href="{{ url_for('admin.dashboard') }}">
+                <i class="fa-solid fa-chart-pie"></i> Overview Dashboard
+            </a>
+
+            <div class="text-muted small fw-bold px-3 pt-3 pb-1 text-uppercase" style="font-size: 0.68rem; letter-spacing: 0.05em;">
+                Timetables & Rooms
+            </div>
+            <a class="nav-link {% if request.endpoint == 'admin.upload_timetable' %}active{% endif %}" href="{{ url_for('admin.upload_timetable') }}">
+                <i class="fa-solid fa-cloud-arrow-up text-primary"></i> Upload Timetable (OCR)
+            </a>
+            <a class="nav-link {% if request.endpoint == 'admin.timetables' %}active{% endif %}" href="{{ url_for('admin.timetables') }}">
+                <i class="fa-solid fa-calendar-days text-info"></i> All Timetables
+            </a>
+            <a class="nav-link {% if request.endpoint == 'admin.create_manual_timetable' %}active{% endif %}" href="{{ url_for('admin.create_manual_timetable') }}">
+                <i class="fa-solid fa-pen-to-square text-secondary"></i> Create Manual Schedule
+            </a>
+            <a class="nav-link {% if request.endpoint == 'admin.room_changes' %}active{% endif %}" href="{{ url_for('admin.room_changes') }}">
+                <i class="fa-solid fa-door-open text-warning"></i> Room Changes
+            </a>
+            <a class="nav-link {% if request.endpoint == 'admin.conflicts_report' %}active{% endif %}" href="{{ url_for('admin.conflicts_report') }}">
+                <i class="fa-solid fa-triangle-exclamation text-danger"></i> Conflict Analyzer
+            </a>
+
+            <div class="text-muted small fw-bold px-3 pt-3 pb-1 text-uppercase" style="font-size: 0.68rem; letter-spacing: 0.05em;">
+                Academic Setup
+            </div>
+            <a class="nav-link {% if request.endpoint == 'admin.branches' %}active{% endif %}" href="{{ url_for('admin.branches') }}">
+                <i class="fa-solid fa-diagram-project"></i> Branches
+            </a>
+            <a class="nav-link {% if request.endpoint == 'admin.academic_terms' %}active{% endif %}" href="{{ url_for('admin.academic_terms') }}">
+                <i class="fa-solid fa-calendar-check"></i> Years & Semesters
+            </a>
+            <a class="nav-link {% if request.endpoint == 'admin.sections' %}active{% endif %}" href="{{ url_for('admin.sections') }}">
+                <i class="fa-solid fa-layer-group"></i> Sections
+            </a>
+            <a class="nav-link {% if request.endpoint == 'admin.classrooms' %}active{% endif %}" href="{{ url_for('admin.classrooms') }}">
+                <i class="fa-solid fa-chalkboard"></i> Classrooms & Labs
+            </a>
+            <a class="nav-link {% if request.endpoint == 'admin.subjects' %}active{% endif %}" href="{{ url_for('admin.subjects') }}">
+                <i class="fa-solid fa-book-bookmark"></i> Subjects
+            </a>
+
+            <div class="text-muted small fw-bold px-3 pt-3 pb-1 text-uppercase" style="font-size: 0.68rem; letter-spacing: 0.05em;">
+                People & Logs
+            </div>
+            <a class="nav-link {% if request.endpoint == 'admin.faculty' %}active{% endif %}" href="{{ url_for('admin.faculty') }}">
+                <i class="fa-solid fa-chalkboard-user"></i> Faculty Members
+            </a>
+            <a class="nav-link {% if request.endpoint == 'admin.students' %}active{% endif %}" href="{{ url_for('admin.students') }}">
+                <i class="fa-solid fa-user-graduate"></i> Students (CSV Import)
+            </a>
+            <a class="nav-link {% if request.endpoint == 'admin.notifications' %}active{% endif %}" href="{{ url_for('admin.notifications') }}">
+                <i class="fa-solid fa-bullhorn"></i> Broadcast Alerts
+            </a>
+            <a class="nav-link {% if request.endpoint == 'admin.audit_logs' %}active{% endif %}" href="{{ url_for('admin.audit_logs') }}">
+                <i class="fa-solid fa-clipboard-list"></i> Audit Logs
+            </a>
+        </nav>
+    </aside>
+
+    <!-- Main Admin Workspace -->
+    <main class="admin-content">
+        {% block admin_content %}{% endblock %}
+    </main>
+</div>
+{% endblock %}

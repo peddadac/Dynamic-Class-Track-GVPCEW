@@ -1,0 +1,86 @@
+{% extends "admin/base_admin.html" %}
+
+{% block title %}All Timetables — Dynamic Class Track{% endblock %}
+
+{% block admin_content %}
+<div class="container-fluid p-0">
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+        <div>
+            <h2 class="h4 fw-bold text-dark mb-1">Timetable Repository</h2>
+            <p class="text-muted small mb-0">Published schedules, drafts under review, and historical archives.</p>
+        </div>
+        <div class="d-flex gap-2">
+            <a href="{{ url_for('admin.create_manual_timetable') }}" class="btn btn-outline-secondary btn-sm px-3 shadow-sm">
+                <i class="fa-solid fa-pen-to-square me-1"></i> Create Manual
+            </a>
+            <a href="{{ url_for('admin.upload_timetable') }}" class="btn btn-primary btn-sm px-3 shadow-sm">
+                <i class="fa-solid fa-cloud-arrow-up me-1"></i> Upload Image (OCR)
+            </a>
+        </div>
+    </div>
+
+    <div class="card border-0 shadow-sm rounded-3">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Timetable Version</th>
+                            <th>Section & Term</th>
+                            <th>Status</th>
+                            <th>Entries</th>
+                            <th>Created On</th>
+                            <th class="text-end">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for v in versions %}
+                            <tr>
+                                <td>
+                                    <strong class="d-block text-dark">{{ v.title }}</strong>
+                                    <small class="text-muted">{{ v.timetable_type|title }} Schedule</small>
+                                </td>
+                                <td>
+                                    <span class="badge bg-primary me-1">{{ v.branch.code }}</span>
+                                    <span>Sem {{ v.semester.number }} - Sec {{ v.section.name }}</span>
+                                </td>
+                                <td>
+                                    {% if v.status == 'published' %}
+                                        <span class="badge bg-success-subtle text-success border border-success-subtle px-2 py-1">
+                                            <i class="fa-solid fa-check-double me-1"></i> Published
+                                        </span>
+                                    {% elif v.status == 'draft' %}
+                                        <span class="badge bg-warning-subtle text-warning border border-warning-subtle px-2 py-1">
+                                            <i class="fa-solid fa-clock me-1"></i> Draft Review
+                                        </span>
+                                    {% else %}
+                                        <span class="badge bg-secondary-subtle text-secondary px-2 py-1">
+                                            Archived
+                                        </span>
+                                    {% endif %}
+                                </td>
+                                <td>{{ v.entries|length }} periods</td>
+                                <td class="text-muted small">{{ v.created_at.strftime('%b %d, %Y') }}</td>
+                                <td class="text-end">
+                                    {% if v.status == 'draft' %}
+                                        <a href="{{ url_for('admin.review_timetable', version_id=v.id) }}" class="btn btn-warning btn-sm py-0 fw-semibold">
+                                            <i class="fa-solid fa-pen me-1"></i> Review & Publish
+                                        </a>
+                                    {% else %}
+                                        <a href="{{ url_for('admin.view_timetable', version_id=v.id) }}" class="btn btn-outline-primary btn-sm py-0">
+                                            <i class="fa-solid fa-eye me-1"></i> View Grid
+                                        </a>
+                                        <a href="{{ url_for('admin.review_timetable', version_id=v.id) }}" class="btn btn-outline-secondary btn-sm py-0 ms-1">
+                                            <i class="fa-solid fa-sliders me-1"></i> Adjust
+                                        </a>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

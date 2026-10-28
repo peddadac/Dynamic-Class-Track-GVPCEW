@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container py-4">
+    <!-- Student Header Sub-Bar -->
+    <div class="card border-0 shadow-sm rounded-4 mb-4 bg-white p-3">
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+            <div class="d-flex align-items-center gap-3">
+                <div class="p-3 bg-teal-subtle text-teal rounded-circle" style="background-color: #ccfbf1; color: var(--accent-teal);">
+                    <i class="fa-solid fa-user-graduate fa-2x"></i>
+                </div>
+                <div>
+                    <div class="d-flex align-items-center gap-2">
+                        <h4 class="fw-bold text-dark mb-0">{{ current_user.full_name }}</h4>
+                        <span class="badge bg-teal text-white text-uppercase" style="background-color: var(--accent-teal); font-size: 0.7rem;">Student</span>
+                    </div>
+                    <small class="text-muted">
+                        Roll: <strong class="text-dark font-monospace">{{ current_user.student_profile.roll_number if current_user.student_profile else '' }}</strong> | 
+                        <span class="badge bg-primary">{{ current_user.student_profile.branch.code if current_user.student_profile else '' }}</span> 
+                        Semester {{ current_user.student_profile.semester.number if current_user.student_profile else '' }} - Section {{ current_user.student_profile.section.name if current_user.student_profile else '' }}
+                    </small>
+                </div>
+            </div>
+
+            <ul class="nav nav-pills gap-2">
+                <li class="nav-item">
+                    <a class="nav-link {% if request.endpoint == 'student.dashboard' %}active{% endif %}" href="{{ url_for('student.dashboard') }}">
+                        <i class="fa-solid fa-clock me-1"></i> Today's Classes
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {% if request.endpoint == 'student.schedule' %}active{% endif %}" href="{{ url_for('student.schedule') }}">
+                        <i class="fa-solid fa-calendar-week me-1"></i> Full Section Timetable
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {% if request.endpoint == 'student.notifications' %}active{% endif %}" href="{{ url_for('student.notifications') }}">
+                        <i class="fa-solid fa-bell me-1"></i> Room Alerts
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    {% block student_content %}{% endblock %}
+</div>
+{% endblock %}

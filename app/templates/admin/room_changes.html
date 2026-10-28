@@ -1,0 +1,124 @@
+{% extends "admin/base_admin.html" %}
+
+{% block title %}Classroom Change Management — Dynamic Class Track{% endblock %}
+
+{% block admin_content %}
+<div class="container-fluid p-0">
+    <div class="mb-4">
+        <h2 class="h4 fw-bold text-dark mb-1">Classroom Change Management</h2>
+        <p class="text-muted small mb-0">
+            Reassign classrooms on-the-fly. The system checks availability, saves change history, and sends targeted alerts strictly to affected professors and students.
+        </p>
+    </div>
+
+    <div class="row g-4">
+        <!-- Reassign Room Form -->
+        <div class="col-lg-5">
+            <div class="card border-0 shadow-sm rounded-3">
+                <div class="card-header bg-white py-3 border-bottom">
+                    <h6 class="fw-bold text-dark mb-0"><i class="fa-solid fa-door-open text-warning me-2"></i> Reassign Class to New Room</h6>
+                </div>
+                <div class="card-body p-4">
+                    <form method="POST" action="{{ url_for('admin.room_changes') }}">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Select Class Period</label>
+                            <select name="entry_id" class="form-select" required>
+                                <option value="">-- Choose Timetable Period --</option>
+                                {% for e in entries %}
+                                    {% if e.subject %}
+                                        <option value="{{ e.id }}">
+                                            {{ e.day_of_week }} P{{ e.period_number }} ({{ e.time_range_display }}) — {{ e.subject.code }}: {{ e.subject.name }} [{{ e.version.branch.code }}-{{ e.version.section.name }}] (Current: {{ e.classroom.room_number if e.classroom else 'TBA' }})
+                                        </option>
+                                    {% endif %}
+                                {% endfor %}
+                            </select>
+                            <small class="text-muted">Displays published class entries.</small>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">New Classroom / Lab</label>
+                            <select name="new_classroom_id" class="form-select" required>
+                                <option value="">-- Select New Room --</option>
+                                {% for r in classrooms %}
+                                    <option value="{{ r.id }}">
+                                        {{ r.room_number }} ({{ r.building_block }}, Capacity: {{ r.capacity }})
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="form-label fw-semibold">Reason for Change</label>
+                            <input type="text" name="reason" class="form-control" placeholder="e.g. Projector maintenance, Air conditioning issue, Lab requirement" required>
+                        </div>
+
+                        <button type="submit" class="btn btn-warning w-100 py-2 fw-bold text-dark shadow-sm" onclick="return confirm('Confirm classroom change? This will instantly notify the assigned faculty member and the students of this section.');">
+                            <i class="fa-solid fa-bell me-1"></i> Confirm & Dispatch Targeted Alerts
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Room Change History Table -->
+        <div class="col-lg-7">
+            <div class="card border-0 shadow-sm rounded-3 h-100">
+                <div class="card-header bg-white py-3 border-bottom d-flex justify-content-between align-items-center">
+                    <h6 class="fw-bold text-dark mb-0">
+                        <i class="fa-solid fa-clock-rotate-left text-primary me-2"></i> Room Adjustment History
+                    </h6>
+                    <span class="badge bg-light text-muted border">{{ history|length }} records</span>
+                </div>
+                <div class="card-body p-0">
+                    {% if history %}
+                        <div class="table-responsive" style="max-height: 520px; overflow-y: auto;">
+                            <table class="table table-hover align-middle mb-0 small">
+                                <thead class="table-light sticky-top">
+                                    <tr>
+                                        <th>Class & Section</th>
+                                        <th>Day & Period</th>
+                                        <th>Previous</th>
+                                        <th>New Room</th>
+                                        <th>Reason / Changed By</th>
+                                        <th>Date</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for h in history %}
+                                        <tr>
+                                            <td>
+                                                <strong class="d-block text-dark">{{ h.timetable_entry.subject.name if h.timetable_entry and h.timetable_entry.subject else 'Class' }}</strong>
+                                                <small class="text-muted">
+                                                    {{ h.timetable_entry.version.branch.code if h.timetable_entry and h.timetable_entry.version else '' }}-Sec {{ h.timetable_entry.version.section.name if h.timetable_entry and h.timetable_entry.version else '' }}
+                                                </small>
+                                            </td>
+                                            <td>
+                                                <div>{{ h.timetable_entry.day_of_week if h.timetable_entry else '' }} P{{ h.timetable_entry.period_number if h.timetable_entry else '' }}</div>
+                                                <small class="text-muted">{{ h.timetable_entry.time_range_display if h.timetable_entry else '' }}</small>
+                                            </td>
+                                            <td><span class="badge bg-secondary">{{ h.old_classroom.room_number if h.old_classroom else 'TBA' }}</span></td>
+                                            <td><span class="badge bg-success">{{ h.new_classroom.room_number if h.new_classroom else 'TBA' }}</span></td>
+                                            <td>
+                                                <div class="text-truncate" style="max-width: 140px;" title="{{ h.reason }}">{{ h.reason or 'Administrative' }}</div>
+                                                <small class="text-muted">By {{ h.changed_by.username if h.changed_by else 'Admin' }}</small>
+                                            </td>
+                                            <td class="text-muted">{{ h.change_timestamp.strftime('%b %d, %H:%M') }}</td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="text-center py-5 text-muted">
+                            <i class="fa-solid fa-door-open fa-2x mb-2 text-secondary"></i>
+                            <div>No room changes recorded yet.</div>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

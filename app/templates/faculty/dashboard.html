@@ -1,0 +1,196 @@
+{% extends "faculty/base_faculty.html" %}
+
+{% block title %}Faculty Dashboard — Dynamic Class Track{% endblock %}
+
+{% block faculty_content %}
+<!-- Today's Date Banner -->
+<div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+    <div>
+        <h3 class="h4 fw-bold text-dark mb-1">Today's Teaching Schedule</h3>
+        <p class="text-muted small mb-0"><i class="fa-regular fa-calendar text-primary me-1"></i> {{ today_date }}</p>
+    </div>
+    <div>
+        <span class="badge bg-light text-dark border fs-6 px-3 py-2">
+            <i class="fa-solid fa-hourglass-half text-primary me-1"></i> {{ remaining_count }} Classes Remaining Today
+        </span>
+    </div>
+</div>
+
+<!-- Highlight Cards: Current & Next Class -->
+<div class="row g-4 mb-4">
+    <!-- 1. Current Class Card -->
+    <div class="col-md-6">
+        <div class="card border-0 shadow-sm rounded-4 h-100 {% if current_class %}border-start border-4 border-success{% endif %} bg-white">
+            <div class="card-body p-4">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <span class="badge bg-success-subtle text-success border border-success-subtle px-3 py-1 rounded-pill fw-semibold">
+                        <i class="fa-solid fa-circle-play me-1"></i> Current Class
+                    </span>
+                    {% if current_class %}
+                        <span class="badge bg-dark fs-6">{{ current_class.time_range_display }}</span>
+                    {% endif %}
+                </div>
+
+                {% if current_class %}
+                    <h4 class="fw-bold text-dark mb-1">{{ current_class.subject.name if current_class.subject else 'Class' }}</h4>
+                    <p class="text-muted small mb-3">
+                        <span class="badge bg-primary me-1">{{ current_class.subject.code }}</span>
+                        {{ current_class.version.branch.code }} Sem {{ current_class.version.semester.number }} - Section {{ current_class.version.section.name }}
+                    </p>
+                    <div class="p-3 bg-light rounded-3 d-flex justify-content-between align-items-center">
+                        <div>
+                            <small class="text-muted d-block">Classroom / Lab Location</small>
+                            <span class="h5 fw-bold text-success mb-0">
+                                <i class="fa-solid fa-door-open me-1"></i> {{ current_class.classroom.room_number if current_class.classroom else 'TBA' }}
+                            </span>
+                        </div>
+                        <span class="badge bg-success px-3 py-2">Period {{ current_class.period_number }}</span>
+                    </div>
+                {% else %}
+                    <div class="text-center py-4 text-muted">
+                        <i class="fa-solid fa-mug-hot fa-2x mb-2 text-secondary"></i>
+                        <p class="mb-0 fw-medium">No class ongoing right now.</p>
+                        <small class="text-muted">Take a break or prepare for your upcoming sessions.</small>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- 2. Next Upcoming Class Card -->
+    <div class="col-md-6">
+        <div class="card border-0 shadow-sm rounded-4 h-100 {% if next_class %}border-start border-4 border-primary{% endif %} bg-white">
+            <div class="card-body p-4">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <span class="badge bg-primary-subtle text-primary border border-primary-subtle px-3 py-1 rounded-pill fw-semibold">
+                        <i class="fa-solid fa-forward me-1"></i> Next Upcoming Class
+                    </span>
+                    {% if next_class %}
+                        <span class="badge bg-dark fs-6">{{ next_class.time_range_display }}</span>
+                    {% endif %}
+                </div>
+
+                {% if next_class %}
+                    <h4 class="fw-bold text-dark mb-1">{{ next_class.subject.name if next_class.subject else 'Class' }}</h4>
+                    <p class="text-muted small mb-3">
+                        <span class="badge bg-primary me-1">{{ next_class.subject.code }}</span>
+                        {{ next_class.version.branch.code }} Sem {{ next_class.version.semester.number }} - Section {{ next_class.version.section.name }}
+                    </p>
+                    <div class="p-3 bg-light rounded-3 d-flex justify-content-between align-items-center">
+                        <div>
+                            <small class="text-muted d-block">Classroom / Lab Location</small>
+                            <span class="h5 fw-bold text-primary mb-0">
+                                <i class="fa-solid fa-door-open me-1"></i> {{ next_class.classroom.room_number if next_class.classroom else 'TBA' }}
+                            </span>
+                        </div>
+                        <span class="badge bg-primary px-3 py-2">Period {{ next_class.period_number }}</span>
+                    </div>
+                {% else %}
+                    <div class="text-center py-4 text-muted">
+                        <i class="fa-solid fa-circle-check fa-2x mb-2 text-success"></i>
+                        <p class="mb-0 fw-medium">No more upcoming classes scheduled today.</p>
+                        <small class="text-muted">All sessions for today have concluded!</small>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Complete Daily Schedule Table -->
+<div class="card border-0 shadow-sm rounded-4 mb-4 bg-white overflow-hidden">
+    <div class="card-header bg-white py-3 border-bottom d-flex justify-content-between align-items-center">
+        <h5 class="fw-bold text-dark mb-0">
+            <i class="fa-solid fa-list-check text-primary me-2"></i> All Scheduled Classes Today
+        </h5>
+        <a href="{{ url_for('faculty.schedule') }}" class="btn btn-outline-primary btn-sm">
+            <i class="fa-solid fa-calendar-week me-1"></i> View Full Week
+        </a>
+    </div>
+    <div class="card-body p-0">
+        {% if today_classes %}
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Period</th>
+                            <th>Time Window</th>
+                            <th>Subject Title & Code</th>
+                            <th>Branch & Section</th>
+                            <th>Classroom</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in today_classes %}
+                            {% set e = item.entry %}
+                            {% set status = item.dynamic_status %}
+                            <tr class="{% if status == 'Ongoing' %}table-success{% endif %}">
+                                <td><span class="badge bg-secondary fs-6">P{{ e.period_number }}</span></td>
+                                <td class="fw-semibold text-dark">{{ e.time_range_display }}</td>
+                                <td>
+                                    <strong class="d-block text-dark">{{ e.subject.name if e.subject else 'Unassigned' }}</strong>
+                                    <small class="text-muted">{{ e.subject.code if e.subject else '' }}</small>
+                                </td>
+                                <td>
+                                    <span class="badge bg-primary me-1">{{ e.version.branch.code }}</span>
+                                    <span>Sem {{ e.version.semester.number }} - Sec {{ e.version.section.name }}</span>
+                                </td>
+                                <td>
+                                    <span class="badge bg-dark fs-6">
+                                        <i class="fa-solid fa-door-open me-1"></i> {{ e.classroom.room_number if e.classroom else 'TBA' }}
+                                    </span>
+                                </td>
+                                <td>
+                                    {% if status == 'Ongoing' %}
+                                        <span class="badge bg-success px-2 py-1"><i class="fa-solid fa-play me-1"></i> Ongoing Now</span>
+                                    {% elif status == 'Upcoming' %}
+                                        <span class="badge bg-info-subtle text-info px-2 py-1"><i class="fa-solid fa-clock me-1"></i> Upcoming</span>
+                                    {% elif status == 'Completed' %}
+                                        <span class="badge bg-light text-muted border px-2 py-1"><i class="fa-solid fa-check me-1"></i> Completed</span>
+                                    {% else %}
+                                        <span class="badge bg-danger px-2 py-1">Cancelled</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div class="text-center py-5 text-muted">
+                <i class="fa-solid fa-calendar-xmark fa-2x mb-2 text-secondary"></i>
+                <p class="mb-0 fw-semibold">No classes scheduled for you today.</p>
+                <small class="text-muted">Check the weekly timetable tab for your complete schedule across the week.</small>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Recent Alerts Preview -->
+{% if notifications %}
+    <div class="card border-0 shadow-sm rounded-4 bg-white">
+        <div class="card-header bg-white py-3 border-bottom d-flex justify-content-between align-items-center">
+            <h6 class="fw-bold text-dark mb-0"><i class="fa-solid fa-bell text-warning me-2"></i> Unread Room Changes & Reminders</h6>
+            <a href="{{ url_for('faculty.notifications') }}" class="btn btn-outline-secondary btn-sm">All Notifications</a>
+        </div>
+        <div class="card-body p-0">
+            <ul class="list-group list-group-flush">
+                {% for n in notifications %}
+                    <li class="list-group-item d-flex justify-content-between align-items-center p-3">
+                        <div>
+                            <span class="badge bg-warning text-dark text-capitalize me-2">{{ n.notification_type|replace('_', ' ') }}</span>
+                            <strong class="text-dark">{{ n.title }}</strong>
+                            <p class="text-muted small mb-0 mt-1">{{ n.message }}</p>
+                        </div>
+                        <form method="POST" action="{{ url_for('faculty.mark_notification_read', notif_id=n.id) }}">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                            <button type="submit" class="btn btn-sm btn-outline-primary">Mark Read</button>
+                        </form>
+                    </li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+{% endif %}
+{% endblock %}

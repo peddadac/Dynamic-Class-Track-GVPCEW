@@ -1,0 +1,201 @@
+{% extends "admin/base_admin.html" %}
+
+{% block title %}Review & Verify Timetable — Dynamic Class Track{% endblock %}
+
+{% block admin_content %}
+<div class="container-fluid p-0">
+
+    <!-- Top Action Bar -->
+    <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+        <div>
+            <div class="d-flex align-items-center gap-2">
+                <h2 class="h4 fw-bold text-dark mb-0">Review & Correct Extracted Timetable</h2>
+                <span class="badge {% if version.status == 'published' %}bg-success{% else %}bg-warning text-dark{% endif %} px-2 py-1">
+                    {{ version.status|title }}
+                </span>
+            </div>
+            <p class="text-muted small mb-0 mt-1">
+                <strong>{{ version.branch.code }}</strong> | Semester {{ version.semester.number }} — Section {{ version.section.name }} (Version {{ version.version_number }})
+            </p>
+        </div>
+
+        <div class="d-flex gap-2">
+            {% if version.uploaded_image %}
+                <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-toggle="collapse" data-bs-target="#imagePreviewBox">
+                    <i class="fa-solid fa-image me-1"></i> Toggle Original Upload Image
+                </button>
+            {% endif %}
+            <a href="{{ url_for('admin.timetables') }}" class="btn btn-outline-secondary btn-sm">
+                <i class="fa-solid fa-arrow-left me-1"></i> Timetables
+            </a>
+        </div>
+    </div>
+
+    <!-- Original Image Collapsible Preview -->
+    {% if version.uploaded_image %}
+        <div class="collapse mb-4" id="imagePreviewBox">
+            <div class="card border-0 shadow-sm rounded-3">
+                <div class="card-header bg-light py-2 d-flex justify-content-between align-items-center">
+                    <small class="fw-bold text-dark"><i class="fa-solid fa-file-image me-1 text-primary"></i> Source Document: {{ version.uploaded_image.original_filename }}</small>
+                    <small class="text-muted">Extracted via OCR Engine</small>
+                </div>
+                <div class="card-body text-center p-3" style="max-height: 450px; overflow-y: auto;">
+                    {% if version.uploaded_image.filename.lower().endswith(('.png', '.jpg', '.jpeg')) %}
+                        <img src="/uploads/timetables/{{ version.uploaded_image.filename }}" alt="Uploaded Timetable" class="img-fluid rounded border shadow-sm" style="max-height: 400px;">
+                    {% else %}
+                        <div class="p-4 bg-light rounded text-muted">
+                            <i class="fa-solid fa-file-pdf fa-2x mb-2 text-danger"></i>
+                            <div>Document format: {{ version.uploaded_image.original_filename }}</div>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    {% endif %}
+
+    <!-- Conflict or Validation Alert Banner -->
+    {% if conflicts and conflicts|length > 0 %}
+        <div class="alert alert-danger shadow-sm border-danger-subtle rounded-3 mb-4">
+            <div class="d-flex align-items-center mb-2">
+                <i class="fa-solid fa-triangle-exclamation fa-lg me-2"></i>
+                <h6 class="fw-bold mb-0">Scheduling Conflicts Detected ({{ conflicts|length }})</h6>
+            </div>
+            <ul class="mb-2 ps-3 small">
+                {% for c in conflicts %}
+                    <li>{{ c }}</li>
+                {% endfor %}
+            </ul>
+            <small class="text-muted">Please adjust periods, professors, or classrooms in the table below to resolve these clashes before publishing.</small>
+        </div>
+    {% endif %}
+
+    <!-- Main Review Form -->
+    <form method="POST" action="{{ url_for('admin.review_timetable', version_id=version.id) }}" id="reviewForm">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+        <div class="card border-0 shadow-sm rounded-3 mb-4">
+            <div class="card-header bg-white py-3 border-bottom d-flex justify-content-between align-items-center flex-wrap gap-2">
+                <div class="small text-muted">
+                    <i class="fa-solid fa-circle-info text-info me-1"></i>
+                    Highlight in <span class="badge bg-warning text-dark">Amber</span> indicates uncertain fields flagged for manual verification.
+                </div>
+                <div class="d-flex gap-2">
+                    <button type="submit" name="action" value="save_draft" class="btn btn-outline-primary btn-sm px-3 fw-semibold">
+                        <i class="fa-solid fa-floppy-disk me-1"></i> Save Draft
+                    </button>
+                    <button type="submit" name="action" value="publish" class="btn btn-success btn-sm px-3 fw-bold shadow-sm" onclick="return confirm('Are you sure you want to approve and publish this timetable? This will update faculty and student portals and dispatch notifications.');">
+                        <i class="fa-solid fa-cloud-arrow-up me-1"></i> Publish to Portals
+                    </button>
+                </div>
+            </div>
+
+            <div class="card-body p-0">
+                <div class="table-responsive" style="max-height: 650px; overflow-y: auto;">
+                    <table class="table table-sm table-hover align-middle mb-0 small">
+                        <thead class="table-light sticky-top" style="z-index: 10;">
+                            <tr>
+                                <th style="width: 105px;">Day</th>
+                                <th style="width: 65px;">Period</th>
+                                <th style="width: 170px;">Timing (Start - End)</th>
+                                <th>Subject (Course Code)</th>
+                                <th>Assigned Faculty</th>
+                                <th style="width: 140px;">Classroom</th>
+                                <th style="width: 100px;">Verification</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for e in version.entries %}
+                                <tr class="{% if e.is_uncertain %}table-warning{% endif %}">
+                                    <input type="hidden" name="entry_id[]" value="{{ e.id }}">
+                                    
+                                    <!-- Day -->
+                                    <td class="fw-bold text-dark">{{ e.day_of_week }}</td>
+
+                                    <!-- Period -->
+                                    <td><span class="badge bg-secondary">P{{ e.period_number }}</span></td>
+
+                                    <!-- Start and End Time -->
+                                    <td>
+                                        <div class="d-flex align-items-center gap-1">
+                                            <input type="time" name="start_time_{{ e.id }}" value="{{ e.start_time.strftime('%H:%M') if e.start_time else '09:00' }}" class="form-control form-control-sm px-1 text-center" style="font-size: 0.75rem;" required>
+                                            <span>-</span>
+                                            <input type="time" name="end_time_{{ e.id }}" value="{{ e.end_time.strftime('%H:%M') if e.end_time else '09:50' }}" class="form-control form-control-sm px-1 text-center" style="font-size: 0.75rem;" required>
+                                        </div>
+                                    </td>
+
+                                    <!-- Subject Selection -->
+                                    <td>
+                                        <select name="subject_{{ e.id }}" class="form-select form-select-sm" style="font-size: 0.8rem;">
+                                            <option value="">-- Free / Unassigned --</option>
+                                            {% for sub in subjects %}
+                                                <option value="{{ sub.id }}" {% if e.subject_id == sub.id %}selected{% endif %}>
+                                                    {{ sub.code }} - {{ sub.name }}
+                                                </option>
+                                            {% endfor %}
+                                        </select>
+                                    </td>
+
+                                    <!-- Faculty Selection -->
+                                    <td>
+                                        <select name="faculty_{{ e.id }}" class="form-select form-select-sm" style="font-size: 0.8rem;">
+                                            <option value="">-- Select Faculty --</option>
+                                            {% for f in faculty %}
+                                                <option value="{{ f.id }}" {% if e.faculty_id == f.id %}selected{% endif %}>
+                                                    {{ f.faculty_id }} ({{ f.full_name }})
+                                                </option>
+                                            {% endfor %}
+                                        </select>
+                                    </td>
+
+                                    <!-- Classroom Selection -->
+                                    <td>
+                                        <select name="classroom_{{ e.id }}" class="form-select form-select-sm" style="font-size: 0.8rem;">
+                                            <option value="">-- Select Room --</option>
+                                            {% for r in classrooms %}
+                                                <option value="{{ r.id }}" {% if e.classroom_id == r.id %}selected{% endif %}>
+                                                    {{ r.room_number }} ({{ r.building_block }})
+                                                </option>
+                                            {% endfor %}
+                                        </select>
+                                    </td>
+
+                                    <!-- Status / Uncertainty Badge -->
+                                    <td>
+                                        {% if e.is_uncertain %}
+                                            <span class="badge bg-warning text-dark border border-warning" title="Flagged by OCR for manual verification">
+                                                <i class="fa-solid fa-triangle-exclamation me-1"></i> Verify
+                                            </span>
+                                        {% else %}
+                                            <span class="badge bg-success-subtle text-success">
+                                                <i class="fa-solid fa-check me-1"></i> Verified
+                                            </span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="card-footer bg-white py-3 border-top d-flex justify-content-between align-items-center flex-wrap gap-2">
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" name="force_publish" value="true" id="forcePublish">
+                    <label class="form-check-label small text-muted" for="forcePublish">
+                        Force publish even if minor warning conflicts exist
+                    </label>
+                </div>
+                <div class="d-flex gap-2">
+                    <button type="submit" name="action" value="save_draft" class="btn btn-outline-primary btn-sm px-4 fw-semibold">
+                        <i class="fa-solid fa-floppy-disk me-1"></i> Save Changes
+                    </button>
+                    <button type="submit" name="action" value="publish" class="btn btn-success btn-sm px-4 fw-bold shadow-sm" onclick="return confirm('Publish timetable version to student & faculty dashboards?');">
+                        <i class="fa-solid fa-cloud-arrow-up me-1"></i> Approve & Publish Timetable
+                    </button>
+                </div>
+            </div>
+        </div>
+    </form>
+
+</div>
+{% endblock %}

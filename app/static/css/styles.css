@@ -1,0 +1,257 @@
+/* ==========================================================================
+   Dynamic Class Track - Primary Stylesheet
+   Gayatri Vidya Parishad College of Engineering for Women (GVPCEW)
+   ========================================================================== */
+
+:root {
+    --primary-blue: #1e3a8a;
+    --primary-hover: #1e40af;
+    --accent-teal: #0f766e;
+    --accent-cyan: #06b6d4;
+    --brand-gold: #f59e0b;
+    --bg-light: #f8fafc;
+    --card-border: #e2e8f0;
+    --text-dark: #0f172a;
+    --text-muted: #64748b;
+    --sidebar-width: 260px;
+}
+
+body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    background-color: var(--bg-light);
+    color: var(--text-dark);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+/* --------------------------------------------------------------------------
+   NAVBAR & HEADER
+-------------------------------------------------------------------------- */
+.navbar-custom {
+    background: linear-gradient(135deg, #1e3a8a 0%, #0f766e 100%);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+.navbar-custom .navbar-brand {
+    font-weight: 700;
+    font-size: 1.25rem;
+    color: #ffffff !important;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.navbar-custom .nav-link {
+    color: rgba(255, 255, 255, 0.9) !important;
+    font-weight: 500;
+    transition: color 0.2s ease;
+}
+
+.navbar-custom .nav-link:hover {
+    color: #ffffff !important;
+}
+
+/* --------------------------------------------------------------------------
+   HERO & LANDING PAGE
+-------------------------------------------------------------------------- */
+.hero-section {
+    background: linear-gradient(135deg, rgba(30, 58, 138, 0.05) 0%, rgba(15, 118, 110, 0.08) 100%);
+    border-bottom: 1px solid #e2e8f0;
+    padding: 4rem 1rem 3rem;
+}
+
+.portal-card {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    border: 1px solid var(--card-border);
+    border-radius: 1rem;
+    overflow: hidden;
+    background: #ffffff;
+    height: 100%;
+}
+
+.portal-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    border-color: var(--primary-blue);
+}
+
+.portal-icon-wrapper {
+    width: 70px;
+    height: 70px;
+    border-radius: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2rem;
+    margin-bottom: 1.25rem;
+}
+
+.portal-admin .portal-icon-wrapper {
+    background-color: #fee2e2;
+    color: #dc2626;
+}
+
+.portal-faculty .portal-icon-wrapper {
+    background-color: #e0e7ff;
+    color: #4338ca;
+}
+
+.portal-student .portal-icon-wrapper {
+    background-color: #ccfbf1;
+    color: #0f766e;
+}
+
+/* --------------------------------------------------------------------------
+   ADMIN SIDEBAR & LAYOUT
+-------------------------------------------------------------------------- */
+.admin-wrapper {
+    display: flex;
+    min-height: calc(100vh - 70px);
+}
+
+.admin-sidebar {
+    width: var(--sidebar-width);
+    background: #ffffff;
+    border-right: 1px solid var(--card-border);
+    padding: 1.5rem 0.75rem;
+    flex-shrink: 0;
+}
+
+.admin-sidebar .nav-link {
+    color: #475569;
+    font-weight: 500;
+    padding: 0.65rem 1rem;
+    border-radius: 0.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 0.25rem;
+    transition: all 0.15s ease;
+}
+
+.admin-sidebar .nav-link:hover {
+    background-color: #f1f5f9;
+    color: var(--primary-blue);
+}
+
+.admin-sidebar .nav-link.active {
+    background-color: #eff6ff;
+    color: var(--primary-blue);
+    font-weight: 600;
+}
+
+.admin-content {
+    flex-grow: 1;
+    padding: 2rem;
+    overflow-x: auto;
+}
+
+/* --------------------------------------------------------------------------
+   DASHBOARD METRIC CARDS
+-------------------------------------------------------------------------- */
+.stat-card {
+    background: #ffffff;
+    border: 1px solid var(--card-border);
+    border-radius: 0.75rem;
+    padding: 1.5rem;
+    transition: transform 0.2s;
+}
+
+.stat-card:hover {
+    transform: translateY(-2px);
+}
+
+.stat-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 0.75rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+}
+
+/* --------------------------------------------------------------------------
+   TIMETABLE MATRICES & REVIEW GRID
+-------------------------------------------------------------------------- */
+.timetable-table {
+    border-collapse: separate;
+    border-spacing: 0;
+    width: 100%;
+}
+
+.timetable-table th {
+    background: #1e293b;
+    color: #ffffff;
+    font-weight: 600;
+    text-align: center;
+    padding: 0.75rem;
+    border: 1px solid #334155;
+}
+
+.timetable-table td {
+    padding: 0.5rem;
+    border: 1px solid #e2e8f0;
+    vertical-align: middle;
+}
+
+.cell-card {
+    background: #ffffff;
+    border: 1px solid #cbd5e1;
+    border-radius: 0.5rem;
+    padding: 0.6rem;
+    transition: all 0.2s;
+}
+
+.cell-card:hover {
+    border-color: var(--primary-blue);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.cell-ongoing {
+    background: #dcfce7 !important;
+    border: 2px solid #16a34a !important;
+}
+
+.cell-upcoming {
+    background: #e0f2fe;
+    border: 1px solid #38bdf8;
+}
+
+.cell-uncertain {
+    background: #fef3c7 !important;
+    border: 2px dashed #f59e0b !important;
+}
+
+/* --------------------------------------------------------------------------
+   NOTIFICATIONS & BELL BADGE
+-------------------------------------------------------------------------- */
+.notification-bell {
+    position: relative;
+    cursor: pointer;
+}
+
+.notification-badge {
+    position: absolute;
+    top: -4px;
+    right: -4px;
+    font-size: 0.65rem;
+    padding: 0.2rem 0.45rem;
+    border-radius: 9999px;
+    background-color: #ef4444;
+    color: #ffffff;
+    font-weight: bold;
+}
+
+/* --------------------------------------------------------------------------
+   FOOTER
+-------------------------------------------------------------------------- */
+footer {
+    background: #ffffff;
+    border-top: 1px solid #e2e8f0;
+    padding: 1.5rem 0;
+    margin-top: auto;
+    font-size: 0.9rem;
+    color: var(--text-muted);
+}

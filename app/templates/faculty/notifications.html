@@ -1,0 +1,69 @@
+{% extends "faculty/base_faculty.html" %}
+
+{% block title %}Faculty Notifications — Dynamic Class Track{% endblock %}
+
+{% block faculty_content %}
+<div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+    <div>
+        <h3 class="h4 fw-bold text-dark mb-1">Alerts & Notifications</h3>
+        <p class="text-muted small mb-0">Classroom changes, schedule updates, and class reminders.</p>
+    </div>
+    {% if notifications %}
+        <form method="POST" action="{{ url_for('faculty.mark_all_read') }}">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <button type="submit" class="btn btn-outline-secondary btn-sm">
+                <i class="fa-solid fa-check-double me-1"></i> Mark All as Read
+            </button>
+        </form>
+    {% endif %}
+</div>
+
+<div class="card border-0 shadow-sm rounded-4 bg-white overflow-hidden">
+    <div class="card-body p-0">
+        {% if notifications %}
+            <div class="list-group list-group-flush">
+                {% for n in notifications %}
+                    <div class="list-group-item p-3 d-flex justify-content-between align-items-center {% if not n.is_read %}bg-light{% endif %}">
+                        <div class="d-flex align-items-start gap-3">
+                            <div class="p-2 rounded-circle mt-1 
+                                {% if n.notification_type == 'room_change' %}bg-warning-subtle text-warning
+                                {% elif n.notification_type == 'class_reminder' %}bg-info-subtle text-info
+                                {% else %}bg-primary-subtle text-primary{% endif %}">
+                                <i class="fa-solid 
+                                    {% if n.notification_type == 'room_change' %}fa-door-open
+                                    {% elif n.notification_type == 'class_reminder' %}fa-clock
+                                    {% else %}fa-bell{% endif %}"></i>
+                            </div>
+                            <div>
+                                <div class="d-flex align-items-center gap-2">
+                                    <h6 class="fw-bold text-dark mb-0">{{ n.title }}</h6>
+                                    {% if not n.is_read %}
+                                        <span class="badge bg-danger" style="font-size: 0.65rem;">New</span>
+                                    {% endif %}
+                                </div>
+                                <p class="text-muted small mb-1 mt-1">{{ n.message }}</p>
+                                <small class="text-muted" style="font-size: 0.75rem;">
+                                    <i class="fa-regular fa-clock me-1"></i> {{ n.created_at.strftime('%b %d, %Y at %I:%M %p') }}
+                                </small>
+                            </div>
+                        </div>
+
+                        {% if not n.is_read %}
+                            <form method="POST" action="{{ url_for('faculty.mark_notification_read', notif_id=n.id) }}">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                <button type="submit" class="btn btn-sm btn-outline-primary">Mark Read</button>
+                            </form>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="text-center py-5 text-muted">
+                <i class="fa-regular fa-bell-slash fa-2x mb-2 text-secondary"></i>
+                <p class="mb-0 fw-semibold">No notifications yet.</p>
+                <small class="text-muted">You will receive alerts here when classroom changes or timetable updates occur.</small>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

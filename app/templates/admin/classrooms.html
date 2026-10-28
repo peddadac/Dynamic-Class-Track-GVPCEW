@@ -1,0 +1,98 @@
+{% extends "admin/base_admin.html" %}
+
+{% block title %}Manage Classrooms & Labs — Dynamic Class Track{% endblock %}
+
+{% block admin_content %}
+<div class="container-fluid p-0">
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+        <div>
+            <h2 class="h4 fw-bold text-dark mb-1">Classrooms & Laboratories</h2>
+            <p class="text-muted small mb-0">Manage physical teaching spaces, buildings, and seat capacities.</p>
+        </div>
+        <button class="btn btn-primary btn-sm px-3 shadow-sm" data-bs-toggle="modal" data-bs-target="#addClassroomModal">
+            <i class="fa-solid fa-plus me-1"></i> Add Classroom
+        </button>
+    </div>
+
+    <div class="card border-0 shadow-sm rounded-3">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Room / Lab Number</th>
+                            <th>Building Block</th>
+                            <th>Seating Capacity</th>
+                            <th>Availability Status</th>
+                            <th class="text-end">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for r in classrooms %}
+                            <tr>
+                                <td>
+                                    <span class="badge bg-dark fs-6">{{ r.room_number }}</span>
+                                </td>
+                                <td class="text-dark fw-semibold">{{ r.building_block or 'Main Block' }}</td>
+                                <td><i class="fa-solid fa-users me-1 text-muted"></i> {{ r.capacity }} seats</td>
+                                <td>
+                                    {% if r.is_active %}
+                                        <span class="badge bg-success-subtle text-success border border-success-subtle px-2 py-1">Available</span>
+                                    {% else %}
+                                        <span class="badge bg-danger-subtle text-danger border border-danger-subtle px-2 py-1">Maintenance / Inactive</span>
+                                    {% endif %}
+                                </td>
+                                <td class="text-end">
+                                    <form method="POST" action="{{ url_for('admin.toggle_classroom', room_id=r.id) }}" class="d-inline">
+                                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                        <button type="submit" class="btn btn-outline-secondary btn-sm py-0">
+                                            {% if r.is_active %}Deactivate{% else %}Activate{% endif %}
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add Classroom Modal -->
+<div class="modal fade" id="addClassroomModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form method="POST" action="{{ url_for('admin.classrooms') }}">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <div class="modal-header">
+                    <h5 class="modal-title fw-bold">Add Classroom or Lab</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Room / Hall / Lab Number</label>
+                        <input type="text" name="room_number" class="form-control text-uppercase" placeholder="e.g. C-204, LH-1, LAB-2" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Building Block</label>
+                        <input type="text" name="building_block" class="form-control" placeholder="e.g. CSE Block, Main Block, R&D Block">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Student Capacity</label>
+                        <input type="number" name="capacity" class="form-control" value="60" min="1" max="500" required>
+                    </div>
+                    <div class="form-check form-switch">
+                        <input class="form-check-input" type="checkbox" name="is_active" id="roomActive" checked>
+                        <label class="form-check-label" for="roomActive">Available for Class Scheduling</label>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary btn-sm">Add Room</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

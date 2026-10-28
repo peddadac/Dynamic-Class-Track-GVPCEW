@@ -1,0 +1,89 @@
+{% extends "admin/base_admin.html" %}
+
+{% block title %}View Timetable — {{ version.title }}{% endblock %}
+
+{% block admin_content %}
+<div class="container-fluid p-0">
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+        <div>
+            <div class="d-flex align-items-center gap-2">
+                <h2 class="h4 fw-bold text-dark mb-0">{{ version.title }}</h2>
+                <span class="badge {% if version.status == 'published' %}bg-success{% else %}bg-warning text-dark{% endif %} px-2 py-1">
+                    {{ version.status|title }}
+                </span>
+            </div>
+            <p class="text-muted small mb-0 mt-1">
+                Effective from: <strong>{{ version.effective_date.strftime('%B %d, %Y') }}</strong> | Section: {{ version.section.display_name }}
+            </p>
+        </div>
+        <div class="d-flex gap-2">
+            <a href="{{ url_for('admin.review_timetable', version_id=version.id) }}" class="btn btn-outline-primary btn-sm px-3">
+                <i class="fa-solid fa-pen-to-square me-1"></i> Edit Schedule
+            </a>
+            <button onclick="window.print()" class="btn btn-outline-secondary btn-sm px-3">
+                <i class="fa-solid fa-print me-1"></i> Print / PDF
+            </button>
+            <a href="{{ url_for('admin.timetables') }}" class="btn btn-secondary btn-sm px-3">
+                <i class="fa-solid fa-arrow-left me-1"></i> All Timetables
+            </a>
+        </div>
+    </div>
+
+    <!-- Timetable Matrix Grid -->
+    <div class="card border-0 shadow-sm rounded-3 overflow-hidden">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-bordered text-center align-middle mb-0 timetable-table">
+                    <thead>
+                        <tr>
+                            <th style="width: 120px; background-color: #1e3a8a; color: #fff;">Day / Time</th>
+                            {% for p in periods %}
+                                <th style="background-color: #1e3a8a; color: #fff;">
+                                    <div>Period {{ p.period }}</div>
+                                    <small class="fw-normal text-white-50" style="font-size: 0.72rem;">{{ p.start }} - {{ p.end }}</small>
+                                </th>
+                            {% endfor %}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for day in days %}
+                            <tr>
+                                <th class="bg-light text-dark fw-bold">{{ day }}</th>
+                                {% for p in periods %}
+                                    {% set entry = grid[day].get(p.period) %}
+                                    <td class="p-2" style="min-width: 130px; height: 90px; vertical-align: top;">
+                                        {% if entry and entry.subject %}
+                                            <div class="cell-card text-start h-100 d-flex flex-column justify-content-between">
+                                                <div>
+                                                    <span class="badge bg-primary-subtle text-primary border border-primary-subtle fw-semibold mb-1" style="font-size: 0.7rem;">
+                                                        {{ entry.subject.code }}
+                                                    </span>
+                                                    <div class="fw-bold text-dark small text-truncate" title="{{ entry.subject.name }}">
+                                                        {{ entry.subject.name }}
+                                                    </div>
+                                                </div>
+                                                <div class="mt-2 pt-1 border-top d-flex justify-content-between align-items-center" style="font-size: 0.72rem;">
+                                                    <span class="text-muted text-truncate" style="max-width: 80px;" title="{{ entry.faculty.full_name if entry.faculty else 'TBA' }}">
+                                                        <i class="fa-solid fa-user-tie me-1"></i>{{ entry.faculty.faculty_id if entry.faculty else 'TBA' }}
+                                                    </span>
+                                                    <span class="badge bg-dark">
+                                                        <i class="fa-solid fa-door-open me-1"></i>{{ entry.classroom.room_number if entry.classroom else 'TBA' }}
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        {% elif entry %}
+                                            <div class="text-muted small py-3">Free</div>
+                                        {% else %}
+                                            <div class="text-muted small py-3">—</div>
+                                        {% endif %}
+                                    </td>
+                                {% endfor %}
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
