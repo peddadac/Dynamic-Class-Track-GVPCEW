@@ -58,10 +58,12 @@ class DevelopmentConfig(Config):
 class TestingConfig(Config):
     """Testing configuration with in-memory database and disabled CSRF."""
     TESTING = True
-    DEBUG = False
-    SQLALCHEMY_DATABASE_URI = "sqlite:///:memory:"
+    DEBUG = False    
+    SQLALCHEMY_DATABASE_URI = "sqlite:///dynamic_class_track.db"
     WTF_CSRF_ENABLED = False
     SECRET_KEY = "test-secret-key"
+
+    
     UPLOAD_FOLDER = BASE_DIR / "tests" / "test_uploads"
     TIMETABLE_UPLOAD_FOLDER = UPLOAD_FOLDER / "timetables"
     CSV_UPLOAD_FOLDER = UPLOAD_FOLDER / "csv"
